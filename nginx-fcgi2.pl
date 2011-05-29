@@ -58,7 +58,6 @@ sub init {
 
    if ( $> == "0" ) {
       print "\n\tERROR\tYou musn't be root to run me!\n";
-#print "\tSuggested not to do so !!!\n\n";
       exit 1;
    }
 
@@ -84,7 +83,7 @@ sub init {
       addlog($logfile, "Deamon listening at UNIX socket $unixsocket");
    } else {
       print "	Daemon listening at TCP/IP socket *:$unixport\n" if $verbose;
-#
+
       addlog($logfile, "Daemon listening at TCP/IP socket *:$unixport");
    }
       if ( $unixsocket ) {
@@ -226,8 +225,8 @@ if ( kill 0, $pid ){
 sub main {
    $request = FCGI::Request( \*STDIN, \*STDOUT, \*STDERR, \%req_params, $socket );
 
-#my ($req_in, $req_out);
-#$request = FCGI::Request( $req_in, $req_out, \*STDERR, \%req_params, $socket );
+   #my ($req_in, $req_out);
+   #$request = FCGI::Request( $req_in, $req_out, \*STDERR, \%req_params, $socket );
    if ($request) { request_loop()};
    FCGI::CloseSocket( $socket );
 }
@@ -240,18 +239,18 @@ sub errio {
 
 sub request_loop {
    while( $request->Accept() >= 0 ) {
-# processing any STDIN input from WebServer (for CGI-POST actions)
+      # processing any STDIN input from WebServer (for CGI-POST actions)
       addlog($logfile,"[$req_params{'SERVER_NAME'}/$req_params{'SERVER_ADDR'}:$req_params{'SERVER_PORT'}] $req_params{'REMOTE_ADDR'}:$req_params{'REMOTE_PORT'} | ID:$cnt |$req_params{'REQUEST_METHOD'}| len:$req_params{'CONTENT_LENGTH'}" | $req_params{'CONTENT_TYPE'});
 
       $req_len = 0 + $req_params{'CONTENT_LENGTH'};
       read(STDIN, $stdin_line, $req_params{'CONTENT_LENGTH'}); # not exactly streaming.. more like 'rammin'
-# running the cgi app
+      # running the cgi app
       kill_env();
-     if ( (-x $req_params{SCRIPT_FILENAME}) && 
+      if ( (-x $req_params{SCRIPT_FILENAME}) && 
            (not -d $req_params{SCRIPT_FILENAME}) &&
            (-s $req_params{SCRIPT_FILENAME}) && 
-           (-r $req_params{SCRIPT_FILENAME})
-         ){
+           (-r $req_params{SCRIPT_FILENAME}))
+      {
 
          foreach $key ( keys %req_params){
             $ENV{$key} = $req_params{$key};
@@ -259,8 +258,8 @@ sub request_loop {
          if ( $verbose ) {
             addlog($logfile, "running $req_params{SCRIPT_FILENAME}");
          }
-# fuck that pipe open noize- we need bidirectional!!!
-#$pid = open2(\*STDOUT,\*STDIN, $req_params{SCRIPT_FILENAME})or errio;
+         # fuck that pipe open noize- we need bidirectional!!!
+         #$pid = open2(\*STDOUT,\*STDIN, $req_params{SCRIPT_FILENAME})or errio;
          chdir dirname($req_params{SCRIPT_FILENAME});
          my ($req_in, $req_out, $req_err);
          $pid = open2($req_out, $req_in, $req_params{SCRIPT_FILENAME})or errio;
@@ -268,7 +267,8 @@ sub request_loop {
           # pass input to the program
          print $req_in $stdin_line;
          close $req_in; # EOF
-=foo
+
+=errorchecker disabled for fun times :-X
          # check for errors
          my $flags = '';
          fcntl($req_err, F_GETFL, $flags)
