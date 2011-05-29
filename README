@@ -1,0 +1,32 @@
+FastCGI launcher scripts
+
+(primarily for nginx)
+
+Kacper Wysocki k@delta9.pl 2008-08-23
+Based on http://wiki.codemongers.com/NginxSimpleCGI
+Based on script by
+Daniel Dominik Rudnicki <daniel@sardzent.org> http://www.nginx.eu/
+
+Far from perfect, this script attempts to improve on the
+even less perfect scripts it is based on.
+
+The situation since 2008 and as of the time of writing (2011) is that everyone
+who uses FastCGI either uses apache or lighty's prefork managers, or
+language-specific builtins (ref: php-fcgi or php-fpm), however there are no good
+cgi-bin wrappers. People write their own and they all usually suck.
+
+nginx-fcgi2.pl: well-hacked version based on FCGI::Request
+    employs "ordered I/O" to avoid deadlocks
+    contains pidfile and daemon support
+cgiwrap.pl:     fugly baroque version based on FCGI::ProcManager
+    employs pipe open and is rather unsatisfactory
+
+For best effect wrap these scripts into daemontools in case they suck so bad they die.
+
+futher work based needed working stdin/stdout
+TODO: proper PIDfile logic. cleanup. rc script. logfile rotation. use strict
+
+To remove the suckage, what we need is a novel approach implemented in a language
+that doesnt have sucky threads.
+
+We need to look at SAPI/WSAPI/KAPI and WSGI too.
